@@ -174,6 +174,65 @@ class HomeRoot extends Component {
 
     const showFTUEVideo = false;
 
+    const {
+      intl, // object,
+      store, // object,
+      authChannel, // object,
+      authVerify, // bool,
+      authTopic, // string,
+      authToken, // string,
+      authPayload, // string,
+      authOrigin, // string,
+      installEvent, // object,
+      hideHero, // bool,
+      showAdmin, // bool,
+      showCreate, // bool,
+      featuredRooms, // array,
+      publicRoomsResult, // object,
+      showSignIn, // bool,
+      signInDestination, // string,
+      signInDestinationUrl, // string,
+      signInReason // string
+    } = this.props;
+
+    console.log("intl: " + intl); // object,
+    console.log("--");
+    console.log("store: " + store); // object,
+    console.log("--");
+    console.log("authChannel: " + authChannel); // object,
+    console.log("--");
+    console.log("authVerify: " + authVerify); // bool,
+    console.log("--");
+    console.log("authTopic: " + authTopic); // string,
+    console.log("--");
+    console.log("authToken: " + authToken); // string,
+    console.log("--");
+    console.log("authPayload: " + authPayload); // string,
+    console.log("--");
+    console.log("authOrigin: " + authOrigin); // string,
+    console.log("--");
+    console.log("installEvent: " + installEvent); // object,
+    console.log("--");
+    console.log("hideHero: " + hideHero); // bool,
+    console.log("--");
+    console.log("showAdmin: " + showAdmin); // bool,
+    console.log("--");
+    console.log("showCreate: " + showCreate); // bool,
+    console.log("--");
+    console.log("featuredRooms: " + featuredRooms); // array,
+    console.log("--");
+    console.log("publicRoomsResult: " + publicRoomsResult); // console.log("--")object,
+
+    console.log("showSignIn: " + showSignIn); // bool,
+    console.log("--");
+    console.log("signInDestination: " + signInDestination); // string,
+    console.log("--");
+    console.log("signInDestinationUrl: " + signInDestinationUrl); // string,
+    console.log("--");
+    console.log("signInReason: " + signInReason); // string
+    console.log("--");
+    console.log(this.props);
+    console.log("--");
     return (
       <IntlProvider locale={lang} messages={messages}>
         <div className={styles.home}>

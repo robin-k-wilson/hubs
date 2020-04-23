@@ -37,7 +37,7 @@ const ask = q => new Promise(res => rl.question(q, res));
   const socket = await connectToReticulum(false, null, Socket);
   const store = new Store();
 
-  const email = await ask("Your admin account email (eg admin@yoursite.com): ");
+  const email = await ask("Your Hubs admin account email (eg admin@yoursite.com): ");
   console.log(`Logging into ${host} as ${email}. Click on the link in your email to continue.`);
   const authChannel = new AuthChannel(store);
   authChannel.setSocket(socket);
