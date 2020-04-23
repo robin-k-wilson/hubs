@@ -31,14 +31,19 @@ let isAdmin = false;
 });
 
 // Also include configs that reticulum injects as a script in the page head.
+console.log("Inside configs.js");
 
 configs.AVAILABLE_INTEGRATIONS = window.AVAILABLE_INTEGRATIONS || {};
 
 if (process.env.APP_CONFIG) {
   window.APP_CONFIG = process.env.APP_CONFIG;
+  console.log("inside if process.env.APP_CONFIG");
+  console.log(window.APP_CONFIG);
 }
 
 if (window.APP_CONFIG) {
+  console.log("inside if window.APP_CONFIG");
+  console.log(window.APP_CONFIG);
   configs.APP_CONFIG = window.APP_CONFIG;
   const { theme } = configs.APP_CONFIG;
   if (theme) {
@@ -72,6 +77,12 @@ configs.feature = featureName => {
     return value;
   }
 };
+
+console.log("before setting images");
+console.log("logo: " + appLogo);
+console.log("company_logo: " + companyLogo);
+console.log("editor_logo: " + sceneEditorLogo);
+console.log("home_background: " + homeHeroBackground);
 
 let localDevImages = {};
 if (isLocalDevelopment) {
