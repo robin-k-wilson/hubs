@@ -80,6 +80,9 @@ export default class SettingsMenu extends Component {
     const showStreamerMode =
       this.props.scene.is("entered") && !!this.props.hubChannel.canOrWillIfCreator("kick_users") && !hideExtranousItems;
 
+    console.log("inside settings-menu");
+    console.log(this.props);
+
     // Draw self first
     return (
       <div

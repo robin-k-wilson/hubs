@@ -174,6 +174,9 @@ class HomeRoot extends Component {
 
     const showFTUEVideo = false;
 
+    console.log("home-root");
+    console.log(this.props);
+
     return (
       <IntlProvider locale={lang} messages={messages}>
         <div className={styles.home}>
