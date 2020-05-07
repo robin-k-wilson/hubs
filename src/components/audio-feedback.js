@@ -324,3 +324,87 @@ AFRAME.registerComponent("mic-button", {
     }
   }
 });
+
+AFRAME.registerComponent("volume-indicator", {
+  schema: {
+    minScale: { default: 0 },
+    maxScale: { default: 1 },
+    ease: { default: 0.2 }
+  },
+
+  async init() {
+    console.log("1");
+    console.log(this.el);
+    await waitForDOMContentLoaded();
+    this.camera = document.getElementById("viewing-camera").object3D;
+    // this.analyser = this.el.sceneEl.systems["local-audio-analyser"];
+  },
+
+  tick() {
+    // if (!this.el.object3D.visible) return;
+    if (!this.camera) return;
+    // if (!this.analyser) this.analyser = getAnalyser(this.el);
+
+    const { minScale, maxScale } = this.data;
+
+    const audioAnalyser = getAnalyser(this.el); // this.el.sceneEl.systems["networked-audio-analyser"];
+    // const audioAnalyser2 =
+    // console.log(audioAnalyser);
+    console.log(audioAnalyser);
+    const scale = getAudioFeedbackScale(
+      this.el.object3D,
+      this.camera,
+      minScale,
+      maxScale,
+      audioAnalyser.volume // this.analyser ? this.analyser.volume : 0
+    );
+    console.log("SCALE");
+    console.log(scale);
+    console.log("----");
+
+    const spriteName = "mic-0_hover.png";
+    // if (spriteName !== this.prevSpriteName) {
+    //   this.prevSpriteName = spriteName;
+    if (scale <= 0.01) {
+      this.el.setAttribute("sprite", "name", "");
+    } else if (scale < 0.5) {
+      this.el.setAttribute("sprite", "name", "mic-4_hover.png");
+    } else {
+      this.el.setAttribute("sprite", "name", "mic-7_hover.png");
+    }
+  }
+});
+// schema: {
+//   minScale: { default: 1 },
+//   maxScale: { default: 1.5 }
+// },
+
+// async init() {
+//   await waitForDOMContentLoaded();
+//   this.camera = document.getElementById("viewing-camera").object3D;
+// },
+
+// tick() {
+//   // TODO: come up with a cleaner way to handle this.
+//   // bone's are "hidden" by scaling them with bone-visibility, without this we would overwrite that.
+//   if (!this.el.object3D.visible) return;
+//   if (!this.camera) return;
+//   if (!this.analyser) this.analyser = getAnalyser(this.el);
+
+//   const { minScale, maxScale } = this.data;
+
+//   const { object3D } = this.el;
+
+//   const scale = getAudioFeedbackScale(
+//     this.el.object3D,
+//     this.camera,
+//     minScale,
+//     maxScale,
+//     this.analyser ? this.analyser.volume : 0
+//   )
+
+// const analyser = this.el.sceneEl.systems["local-audio-analyser"];
+
+// if (analyser && playerHead.el.components["scale-audio-feedback"]) {
+//   scale = getAudioFeedbackScale(this.el.object3D, playerHead, 1, 2, analyser.volume);
+// }
