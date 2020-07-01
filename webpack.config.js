@@ -10,6 +10,8 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const TOML = require("@iarna/toml");
 const fetch = require("node-fetch");
+const packageLock = require("./package-lock.json");
+const request = require("request");
 
 function createHTTPSConfig() {
   // Generate certs for the local webpack-dev-server.
@@ -59,21 +61,43 @@ function createHTTPSConfig() {
   }
 }
 
-function matchRegex({ include, exclude }) {
-  return (module, chunks) => {
-    if (
-      module.nameForCondition &&
-      include.test(module.nameForCondition()) &&
-      !exclude.test(module.nameForCondition())
-    ) {
-      return true;
-    }
-    for (const chunk of chunks) {
-      if (chunk.name && include.test(chunk.name) && !exclude.test(chunk.name)) {
-        return true;
+function getModuleDependencies(moduleName) {
+  const deps = packageLock.dependencies;
+  const arr = [];
+
+  const gatherDeps = name => {
+    arr.push(path.join(__dirname, "node_modules", name) + path.sep);
+
+    const moduleDef = deps[name];
+
+    if (moduleDef && moduleDef.requires) {
+      for (const requiredModuleName in moduleDef.requires) {
+        gatherDeps(requiredModuleName);
       }
     }
-    return false;
+  };
+
+  gatherDeps(moduleName);
+
+  return arr;
+}
+
+function deepModuleDependencyTest(modulesArr) {
+  const deps = [];
+
+  for (const moduleName of modulesArr) {
+    const moduleDependencies = getModuleDependencies(moduleName);
+    deps.push(...moduleDependencies);
+  }
+
+  return module => {
+    if (!module.nameForCondition) {
+      return false;
+    }
+
+    const name = module.nameForCondition();
+
+    return deps.some(depName => name.startsWith(depName));
   };
 }
 
@@ -112,7 +136,7 @@ function createDefaultAppConfig() {
 
 async function fetchAppConfigAndEnvironmentVars() {
   if (!fs.existsSync(".ret.credentials")) {
-    throw new Error("Not logged in to Hubs Cloud. Run `npm login` first.");
+    throw new Error("Not logged in to Hubs Cloud. Run `npm run login` first.");
   }
 
   const { host, token } = JSON.parse(fs.readFileSync(".ret.credentials"));
@@ -144,12 +168,13 @@ async function fetchAppConfigAndEnvironmentVars() {
     throw new Error(`Error fetching Hubs Cloud config "${hubsConfigsResponse.statusText}"`);
   }
 
-  const { shortlink_domain, cors_proxy_server, thumbnail_server, non_cors_proxy_domains } = hubsConfigs.general;
+  const { shortlink_domain, thumbnail_server } = hubsConfigs.general;
 
+  process.env.RETICULUM_SERVER = host;
   process.env.SHORTLINK_DOMAIN = shortlink_domain;
-  process.env.CORS_PROXY_SERVER = cors_proxy_server;
+  process.env.CORS_PROXY_SERVER = "localhost:8080/cors-proxy";
   process.env.THUMBNAIL_SERVER = thumbnail_server;
-  process.env.NON_CORS_PROXY_DOMAINS = non_cors_proxy_domains + ",hubs.local";
+  process.env.NON_CORS_PROXY_DOMAINS = "hubs.local,localhost";
 
   return appConfig;
 }
@@ -185,7 +210,6 @@ module.exports = async (env, argv) => {
       // Local Dev Environment (npm run local)
       Object.assign(process.env, {
         HOST: "hubs.local",
-        CORS_PROXY_HOST: "hubs-proxy.local",
         RETICULUM_SOCKET_SERVER: "hubs.local",
         CORS_PROXY_SERVER: "hubs-proxy.local:4000",
         NON_CORS_PROXY_DOMAINS: "hubs.local,dev.reticulum.io",
@@ -200,16 +224,16 @@ module.exports = async (env, argv) => {
   // In production, the environment variables are defined in CI or loaded from ita and
   // the app config is injected into the head of the page by Reticulum.
 
-  const defaultHostName = "hubs.local";
-  const host = process.env.HOST_IP || defaultHostName;
+  const host = process.env.HOST_IP || env.localDev || env.remoteDev ? "hubs.local" : "localhost";
 
-  // Remove comments from .babelrc
-  const babelConfig = JSON.parse(
-    fs
-      .readFileSync(path.resolve(__dirname, ".babelrc"))
-      .toString()
-      .replace(/\/\/.+/g, "")
-  );
+  const legacyBabelConfig = {
+    presets: ["@babel/react", ["@babel/env", { targets: { ie: 11 } }]],
+    plugins: [
+      "@babel/proposal-class-properties",
+      "@babel/proposal-object-rest-spread",
+      "@babel/plugin-transform-async-to-generator"
+    ]
+  };
 
   return {
     node: {
@@ -219,6 +243,7 @@ module.exports = async (env, argv) => {
       fs: "empty"
     },
     entry: {
+      support: path.join(__dirname, "src", "support.js"),
       index: path.join(__dirname, "src", "index.js"),
       hub: path.join(__dirname, "src", "hub.js"),
       scene: path.join(__dirname, "src", "scene.js"),
@@ -238,11 +263,43 @@ module.exports = async (env, argv) => {
       host: "0.0.0.0",
       public: `${host}:8080`,
       useLocalIp: true,
-      allowedHosts: [host],
+      allowedHosts: [host, "hubs.local"],
       headers: {
         "Access-Control-Allow-Origin": "*"
       },
+      inline: !env.bundleAnalyzer,
       before: function(app) {
+        // Local CORS proxy
+        app.all("/cors-proxy/*", (req, res) => {
+          res.header("Access-Control-Allow-Origin", "*");
+          res.header("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+          res.header("Access-Control-Allow-Headers", "Range");
+          res.header(
+            "Access-Control-Expose-Headers",
+            "Accept-Ranges, Content-Encoding, Content-Length, Content-Range, Hub-Name, Hub-Entity-Type"
+          );
+          res.header("Vary", "Origin");
+          res.header("X-Content-Type-Options", "nosniff");
+
+          const redirectLocation = req.header("location");
+
+          if (redirectLocation) {
+            res.header("Location", "https://localhost:8080/cors-proxy/" + redirectLocation);
+          }
+
+          if (req.method === "OPTIONS") {
+            res.send();
+          } else {
+            const url = req.path.replace("/cors-proxy/", "");
+            request({ url, method: req.method }, error => {
+              if (error) {
+                console.error(`cors-proxy: error fetching "${url}"\n`, error);
+                return;
+              }
+            }).pipe(res);
+          }
+        });
+
         // be flexible with people accessing via a local reticulum on another port
         app.use(cors({ origin: /hubs\.local(:\d*)?$/ }));
         // networked-aframe makes HEAD requests to the server for time syncing. Respond with an empty body.
@@ -282,11 +339,13 @@ module.exports = async (env, argv) => {
           }
         },
         {
-          // We reference the sources of some libraries directly, and they use async/await,
-          // so we have to run it through babel in order to support the Samsung browser on Oculus Go.
-          test: [path.resolve(__dirname, "node_modules/naf-janus-adapter")],
+          test: [
+            path.resolve(__dirname, "src", "utils", "configs.js"),
+            path.resolve(__dirname, "src", "utils", "i18n.js"),
+            path.resolve(__dirname, "src", "support.js")
+          ],
           loader: "babel-loader",
-          options: babelConfig
+          options: legacyBabelConfig
         },
         {
           test: /\.js$/,
@@ -350,74 +409,125 @@ module.exports = async (env, argv) => {
 
     optimization: {
       splitChunks: {
+        maxAsyncRequests: 10,
+        maxInitialRequests: 10,
         cacheGroups: {
-          vendors: {
-            test: matchRegex({
-              include: /([\\/]node_modules[\\/]|[\\/]vendor[\\/])/,
-              exclude: /[\\/]node_modules[\\/]markdown-it[\\/]/
-            }),
-            priority: 50,
-            name: "vendor",
-            chunks: "all"
+          frontend: {
+            test: deepModuleDependencyTest([
+              "react",
+              "react-dom",
+              "prop-types",
+              "raven-js",
+              "react-intl",
+              "classnames",
+              "react-router",
+              "@fortawesome/fontawesome-svg-core",
+              "@fortawesome/free-solid-svg-icons",
+              "@fortawesome/react-fontawesome"
+            ]),
+            name: "frontend",
+            chunks: "initial",
+            priority: 40
           },
           engine: {
-            test: /([\\/]src[\\/]workers|[\\/]node_modules[\\/](aframe|cannon|three))/,
-            priority: 100,
+            test: deepModuleDependencyTest(["aframe", "three"]),
             name: "engine",
-            chunks: "all"
+            chunks: "initial",
+            priority: 30
+          },
+          store: {
+            test: deepModuleDependencyTest(["phoenix", "jsonschema", "event-target-shim", "jwt-decode", "js-cookie"]),
+            name: "store",
+            chunks: "initial",
+            priority: 20
+          },
+          hubVendors: {
+            test: /[\\/]node_modules[\\/]/,
+            name: "hub-vendors",
+            chunks: chunk => chunk.name === "hub",
+            priority: 10
           }
         }
       }
     },
     plugins: [
       new BundleAnalyzerPlugin({
-        analyzerMode: env && env.BUNDLE_ANALYZER ? "server" : "disabled"
+        analyzerMode: env && env.bundleAnalyzer ? "server" : "disabled"
       }),
       // Each output page needs a HTMLWebpackPlugin entry
       new HTMLWebpackPlugin({
         filename: "index.html",
         template: path.join(__dirname, "src", "index.html"),
-        chunks: ["vendor", "index"]
+        chunks: ["support", "index"],
+        chunksSortMode: "manual",
+        minify: {
+          removeComments: false
+        }
       }),
       new HTMLWebpackPlugin({
         filename: "hub.html",
         template: path.join(__dirname, "src", "hub.html"),
-        chunks: ["vendor", "engine", "hub"],
-        inject: "head"
+        chunks: ["support", "hub"],
+        chunksSortMode: "manual",
+        inject: "head",
+        minify: {
+          removeComments: false
+        }
       }),
       new HTMLWebpackPlugin({
         filename: "scene.html",
         template: path.join(__dirname, "src", "scene.html"),
-        chunks: ["vendor", "engine", "scene"],
-        inject: "head"
+        chunks: ["support", "scene"],
+        chunksSortMode: "manual",
+        inject: "head",
+        minify: {
+          removeComments: false
+        }
       }),
       new HTMLWebpackPlugin({
         filename: "avatar.html",
         template: path.join(__dirname, "src", "avatar.html"),
-        chunks: ["vendor", "engine", "avatar"],
-        inject: "head"
+        chunks: ["support", "avatar"],
+        chunksSortMode: "manual",
+        inject: "head",
+        minify: {
+          removeComments: false
+        }
       }),
       new HTMLWebpackPlugin({
         filename: "link.html",
         template: path.join(__dirname, "src", "link.html"),
-        chunks: ["vendor", "engine", "link"]
+        chunks: ["support", "link"],
+        chunksSortMode: "manual",
+        minify: {
+          removeComments: false
+        }
       }),
       new HTMLWebpackPlugin({
         filename: "discord.html",
         template: path.join(__dirname, "src", "discord.html"),
-        chunks: ["vendor", "discord"]
+        chunks: ["discord"],
+        minify: {
+          removeComments: false
+        }
       }),
       new HTMLWebpackPlugin({
         filename: "whats-new.html",
         template: path.join(__dirname, "src", "whats-new.html"),
-        chunks: ["vendor", "whats-new"],
-        inject: "head"
+        chunks: ["whats-new"],
+        inject: "head",
+        minify: {
+          removeComments: false
+        }
       }),
       new HTMLWebpackPlugin({
         filename: "cloud.html",
         template: path.join(__dirname, "src", "cloud.html"),
-        chunks: ["vendor", "cloud"],
-        inject: "head"
+        chunks: ["cloud"],
+        inject: "head",
+        minify: {
+          removeComments: false
+        }
       }),
       new CopyWebpackPlugin([
         {
