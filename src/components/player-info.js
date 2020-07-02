@@ -147,8 +147,28 @@ AFRAME.registerComponent("player-info", {
       modBadgeEl.object3D.visible = !this.isRecording && this.isOwner && !infoShouldBeHidden;
     }
   },
+  applyVolumeIndicator() {
+    const store = window.APP.store;
+    const volumeIndicatorEl = this.el.querySelector(".volume-indicator");
+    // const nameTagsAreHidden =
+    // this.isLocalPlayerInfo || (store.state.preferences.onlyShowNametagsInFreeze && !this.el.sceneEl.is("frozen"));
+
+    if (volumeIndicatorEl) {
+      const showVolumeIndicators = !store.state.preferences.disableVolumeIndicatorsOnOtherAvatars;
+      volumeIndicatorEl.object3D.visible = showVolumeIndicators;
+      // if (!nameTagsAreHidden) {
+      //   // adjust placement to left of the display name
+      //   volumeIndicatorEl.object3D.position.x = -this.displayName.length * 0.065;
+      //   volumeIndicatorEl.object3D.position.y = 1.05;
+      // } else {
+      //   volumeIndicatorEl.object3D.position.x = 0;
+      //   volumeIndicatorEl.object3D.position.y = 1;
+      // }
+    }
+  },
   applyProperties(e) {
     this.applyDisplayName();
+    this.applyVolumeIndicator();
 
     const modelEl = this.el.querySelector(".model");
     if (this.data.avatarSrc && modelEl) {

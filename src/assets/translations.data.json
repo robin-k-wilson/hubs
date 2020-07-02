@@ -305,6 +305,7 @@
     "preferences.allowMultipleHubsInstances": "Disable auto-exit when multiple hubs instances are open",
     "preferences.disableIdleDetection": "Disable auto-exit when idle or backgrounded",
     "preferences.preferMobileObjectInfoPanel": "Prefer Mobile Object Info Panel",
+    "preferences.disableVolumeIndicatorsOnOtherAvatars": "Remove volume indicators on other avatars",
     "settings.return-to-vr": "Return to VR",
     "settings.change-avatar": "Set Name & Avatar",
     "settings.change-scene": "Choose a Scene",

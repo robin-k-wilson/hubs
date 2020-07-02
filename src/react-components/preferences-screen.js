@@ -573,6 +573,11 @@ const DEFINITIONS = new Map([
     CATEGORY_MISC,
     [
       { key: "onlyShowNametagsInFreeze", prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX, defaultBool: false },
+      {
+        key: "disableVolumeIndicatorsOnOtherAvatars",
+        prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX,
+        defaultBool: false
+      },
       { key: "maxResolution", prefType: PREFERENCE_LIST_ITEM_TYPE.MAX_RESOLUTION },
       {
         key: "materialQualitySetting",
