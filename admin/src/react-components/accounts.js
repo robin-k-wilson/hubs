@@ -259,8 +259,6 @@ export const AccountList = withStyles(styles)(
 
 export const AccountEdit = withStyles(styles)(props => {
   const { classes } = props
-  console.log('toolbar wihtout delete')
-  console.log(ToolbarWithoutDelete)
 
   return (
     <Edit {...props}>
