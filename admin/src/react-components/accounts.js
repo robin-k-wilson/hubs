@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { connect, SaveButton } from 'react-redux'
+import { connect } from 'react-redux'
 import { IdentityEditLink, IdentityCreateLink } from './fields'
 import { withStyles } from '@material-ui/core/styles'
 import Card from '@material-ui/core/Card'
@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Snackbar from '@material-ui/core/Snackbar'
 import SnackbarContent from '@material-ui/core/SnackbarContent'
+import { ToolbarWithoutDelete } from './toolbar-without-delete'
 
 import {
   BooleanField,
@@ -256,18 +257,14 @@ export const AccountList = withStyles(styles)(
   )
 )
 
-const PostEditToolbar = props => (
-  <Toolbar {...props}>
-    <SaveButton />
-  </Toolbar>
-)
-
 export const AccountEdit = withStyles(styles)(props => {
   const { classes } = props
+  console.log('toolbar wihtout delete')
+  console.log(ToolbarWithoutDelete)
 
   return (
     <Edit {...props}>
-      <SimpleForm toolbar={<PostEditToolbar />}>
+      <SimpleForm toolbar={<ToolbarWithoutDelete />}>
         <TextField label="Account ID" source="id" />
         <BooleanInput source="is_admin" />
         <SelectInput
