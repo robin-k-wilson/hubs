@@ -170,6 +170,7 @@ export const AccountList = withStyles(styles)(
       }
       render() {
         const { classes } = this.props
+
         return (
           <>
             <Card classes={{ root: classes.searchCard }}>
@@ -260,16 +261,16 @@ export const AccountList = withStyles(styles)(
 export const AccountEdit = withStyles(styles)(props => {
   const { classes } = props
 
+  // <!--  toolbar={<ToolbarWithoutDelete />} -->
   return (
     <Edit {...props}>
-      <SimpleForm toolbar={<ToolbarWithoutDelete />}>
+      <SimpleForm>
         <TextField label="Account ID" source="id" />
         <BooleanInput source="is_admin" />
         <SelectInput
           source="state"
           choices={[{ id: 'enabled', name: 'enabled' }, { id: 'disabled', name: 'disabled' }]}
         />
-
         <ReferenceManyField label="Identity" target="_account_id" reference="identities">
           <Datagrid classes={{ rowCell: classes.noBorder, thead: classes.hide }}>
             <TextField source="name" />
