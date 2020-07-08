@@ -221,9 +221,9 @@ export const AccountList = withStyles(styles)(
 )
 
 export const AccountEdit = withStyles(styles)(props => {
-  const { classes } = props
+  const { classes, ...other } = props
   return (
-    <Edit {...props}>
+    <Edit {...other}>
       <SimpleForm toolbar={<ToolbarWithoutDelete />}>
         <TextField label="Account ID" source="id" />
         <BooleanInput source="is_admin" />
