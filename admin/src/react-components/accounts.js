@@ -48,13 +48,20 @@ export const AccountList = withStyles(styles)(
   )(
     class AccountList extends Component {
       state = {
+        // Searching
         emailSearch: "",
         searching: false,
         searchStatus: null,
+        // Creating
         batchCreate: "",
         creating: false,
         createStatus: null,
-        createResults: ""
+        createResults: "",
+        // Deactivate
+        batchDeactivate: "",
+        deactivating: false,
+        deactivateStatus: null,
+        deactivateResults: ""
       };
       componentWillUnmount() {
         this.clearCreateStatusTimer();
@@ -168,12 +175,33 @@ export const AccountList = withStyles(styles)(
           this.createStatusTimer = null;
         }, 6000);
       }
+      async onDeactivateAccount() {}
       render() {
         // refreshView() is only needed in onCreateAccounts()
         // eslint-disable-next-line no-unused-vars
         const { classes, refreshView, ...other } = this.props;
         return (
           <>
+            <Card className={classes.searchCard}>
+              <CardContent>
+                <Typography component="h2">
+                  <b>Find an account with an email address</b>
+                </Typography>
+                <form onSubmit={this.onAccountSearch.bind(this)}>
+                  <MuiTextField
+                    label="Account Email"
+                    type="email"
+                    required
+                    onChange={e => this.setState({ emailSearch: e.target.value })}
+                  />
+                  <Button onClick={this.onAccountSearch.bind(this)}>Find</Button>
+                  {this.state.searching && <CircularProgress />}
+                  <Snackbar open={this.state.searchStatus} autoHideDuration={5000}>
+                    <SnackbarContent message={this.state.searchStatus}></SnackbarContent>
+                  </Snackbar>
+                </form>
+              </CardContent>
+            </Card>
             <Card className={classes.searchCard}>
               <CardContent>
                 <Typography component="h2">
@@ -216,22 +244,41 @@ export const AccountList = withStyles(styles)(
                   ))}
               </CardContent>
             </Card>
+
             <Card className={classes.searchCard}>
               <CardContent>
-                <Typography component="h2">Find an account with an email address</Typography>
-                <form onSubmit={this.onAccountSearch.bind(this)}>
+                <Typography component="h2">
+                  <b>Deactivate accounts or identites</b>
+                </Typography>
+                <form onSubmit={this.onCreateAccount.bind(this)}>
                   <MuiTextField
-                    label="Account Email"
-                    type="email"
+                    label="Email(s)"
+                    type="text"
+                    style={{ minWidth: "300px" }}
                     required
-                    onChange={e => this.setState({ emailSearch: e.target.value })}
+                    onChange={e => this.setState({ batchDeactivate: e.target.value })}
                   />
-                  <Button onClick={this.onAccountSearch.bind(this)}>Find</Button>
-                  {this.state.searching && <CircularProgress />}
-                  <Snackbar open={this.state.searchStatus} autoHideDuration={5000}>
-                    <SnackbarContent message={this.state.searchStatus}></SnackbarContent>
+                  <Button onClick={this.onDeactivateAccount.bind(this)}>Deactivate</Button>
+                  {this.state.deactivating && <CircularProgress />}
+                  <Snackbar open={this.state.deactivateStatus} autoHideDuration={5000}>
+                    <SnackbarContent message={this.state.deactivateStatus}></SnackbarContent>
                   </Snackbar>
                 </form>
+                {this.state.deactivateResults &&
+                  Object.keys(this.state.deactivateResults).map(message => (
+                    <>
+                      <Typography
+                        component="p"
+                        color={message.includes("success") ? "textPrimary" : "error"}
+                        style={{ paddingTop: "10px" }}
+                      >
+                        {message}
+                      </Typography>
+                      <Typography component="p" color="secondary" style={{ paddingBottom: "10px" }}>
+                        [ {this.state.deactivateResults[message].join(", ")} ]
+                      </Typography>
+                    </>
+                  ))}
               </CardContent>
             </Card>
             <List {...other} filters={<AccountFilter />}>
