@@ -361,7 +361,7 @@ module.exports = async (env, argv) => {
           options: legacyBabelConfig
         },
         {
-          test: /\.js$/,
+          test: /\\.(js|ts)x?$/,
           include: [path.resolve(__dirname, "src")],
           // Exclude JS assets in node_modules because they are already transformed and often big.
           exclude: [path.resolve(__dirname, "node_modules")],

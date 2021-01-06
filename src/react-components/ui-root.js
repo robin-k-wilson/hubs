@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+// import { TsTest } from "./ts-test/index.js";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import copy from "copy-to-clipboard";
@@ -2167,6 +2168,7 @@ class UIRoot extends Component {
               </div>
             )}
           </div>
+          {/* <TsTest toyName="Robin" /> */}
         </WrappedIntlProvider>
       </ReactAudioContext.Provider>
     );
