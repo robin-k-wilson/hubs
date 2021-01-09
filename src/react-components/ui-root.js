@@ -82,6 +82,8 @@ import qsTruthy from "../utils/qs_truthy";
 import { CAMERA_MODE_INSPECT } from "../systems/camera-system";
 const avatarEditorDebug = qsTruthy("avatarEditorDebug");
 
+import { TsTest } from "../ts-test/ts-test.tsx";
+
 // This is a list of regexes that match the microphone labels of HMDs.
 //
 // If entering VR mode, and if any of these regexes match an audio device,
@@ -2167,6 +2169,7 @@ class UIRoot extends Component {
               </div>
             )}
           </div>
+          <TsTest />
         </WrappedIntlProvider>
       </ReactAudioContext.Provider>
     );

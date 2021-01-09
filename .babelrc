@@ -1,6 +1,7 @@
 {
   "presets": [
     "@babel/react",
+    "@babel/preset-typescript",
     ["@babel/env", {
       "exclude": ["transform-regenerator"],
       "targets": {
@@ -30,7 +31,7 @@
     "transform-react-jsx-img-import",
     "@babel/proposal-class-properties",
     "@babel/proposal-object-rest-spread",
-    // Samsung Internet on the Oculus Go version is stuck at version 5.2, which is a 
+    // Samsung Internet on the Oculus Go version is stuck at version 5.2, which is a
     // Chromium 51, as of this writing. It needs babel to transpile async/await.
     "@babel/plugin-transform-async-to-generator"
   ]

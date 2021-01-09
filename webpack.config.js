@@ -385,6 +385,15 @@ module.exports = async (env, argv) => {
           ]
         },
         {
+          test: /\.tsx?$/,
+          loader: "babel-loader"
+        },
+        // {
+        //   test: /\.js$/,
+        //   use: ["source-map-loader"],
+        //   enforce: "pre"
+        // },
+        {
           test: /\.(png|jpg|gif|glb|ogg|mp3|mp4|wav|woff2|svg|webm)$/,
           use: {
             loader: "file-loader",
