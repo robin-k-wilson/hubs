@@ -332,6 +332,9 @@ module.exports = async (env, argv) => {
         return !/\.(map|png|jpg|gif|glb|webm)$/.test(assetFilename);
       }
     },
+    resolve: {
+      extensions: [".ts", ".tsx", ".js", ".json"]
+    },
     module: {
       rules: [
         {
@@ -361,7 +364,7 @@ module.exports = async (env, argv) => {
           options: legacyBabelConfig
         },
         {
-          test: /\.js$/,
+          test: [/\.jsx?$/, /\.tsx?$/],
           include: [path.resolve(__dirname, "src")],
           // Exclude JS assets in node_modules because they are already transformed and often big.
           exclude: [path.resolve(__dirname, "node_modules")],

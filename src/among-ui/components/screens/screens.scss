@@ -1,0 +1,149 @@
+.screen-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.4)
+}
+
+.killed-image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.screen-text {
+    position: absolute;
+    top: calc(50% - 35px);
+    text-align: center;
+    width: 100%;
+}
+
+.shhh-image-wrapper {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background-color: #030200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.shhh-image {
+    position: relative;
+    height: 80%;
+    width: auto;
+}
+
+
+/* MEETING SCREEN */
+.container-outside {
+    border-radius: 15px;
+    background: grey;
+    height: 90%;
+    width: 90%;
+    padding: 20px;
+    display: flex;
+    // justify-content: space-around;
+    // align-items: center;
+    position: fixed;
+    top:50%;
+    left: 50%;
+    // margin-top: -50%; margin-left: -50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.container-inside {
+  border: 8px solid darkgray;
+  border-radius: 10px;
+  background-color: lightblue;
+  padding: 10px;
+  h2 {
+      font-size: 35px;
+      margin: 10px;
+      text-align: center;
+  }
+}
+.ipad-button {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 4px solid darkgray;
+}
+.crew-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.crew-wrapper {
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 2px 2px 2px #000;
+    padding: 5px;
+    width: 45%;
+    display: flex;
+    flex-wrap: row;
+    margin: 8px;
+    overflow: hidden;
+    height: 70px;
+    span {
+        font-size: 25px;
+        letter-spacing: 1px;
+    }
+}
+.crew-image {
+    margin-top: -5px;
+    width: 80px;
+    height: 80px;
+    margin-right: 10px;
+}
+.crew-dead {
+    /*TODO add the X over the crew-image*/
+}
+.microphone-image {
+   margin-top: -20px;
+   margin-right: 20px;
+   width: 120px;
+   height: 120px;
+   opacity: 0.3
+}
+
+.skip-vote-button {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.justify-content-space-between {
+    justify-content: space-between;
+}
+.justify-content-flex-start {
+    justify-content: flex-start;
+}
+.image-name-wrapper {
+    display: flex;
+}
+
+.background-grey {
+    background-color: darkgray;
+}
+
+.image-ivoted {
+    position: fixed;
+   margin-top: -20px;
+   margin-left: -20px;
+   width: 50px;
+   height: 50px;
+}
+
+.win-screen-play-again {
+   position: absolute;
+   z-index: 51;
+   bottom: 20px;
+   right: 20px;
+}

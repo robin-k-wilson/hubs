@@ -1,0 +1,20 @@
+.sabotage-buttons-container {
+    width: 400px;
+    height: 500px;
+}
+
+.sabotage-buttons-wrapper {
+   background-color: blue;
+   padding: 30px;
+}
+
+.sabotage-button {
+  height: 30px
+}
+.center-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+}

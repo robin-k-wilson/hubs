@@ -113,6 +113,9 @@ const isFirefoxReality = isMobileVR && navigator.userAgent.match(/Firefox/);
 
 const AUTO_EXIT_TIMER_SECONDS = 10;
 
+// const IS_AMONG_HUBS_UI = true;
+import { AmongUI } from "../among-ui/among-ui.tsx";
+
 class UIRoot extends Component {
   willCompileAndUploadMaterials = false;
 
@@ -2170,6 +2173,7 @@ class UIRoot extends Component {
             )}
           </div>
           <TsTest />
+          {/* <AmongUI /> */}
         </WrappedIntlProvider>
       </ReactAudioContext.Provider>
     );
